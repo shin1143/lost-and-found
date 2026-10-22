@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#173f35">
+  <title>Campus Lost &amp; Found</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#" aria-label="Campus Lost and Found home">
+        <span class="brand-mark" aria-hidden="true">⌕</span>
+        <span>Campus<span class="brand-light"> Lost &amp; Found</span></span>
+      </a>
+      <a class="header-link" href="#report-form">Report an item <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> YOUR CAMPUS COMMUNITY</p>
+        <h1>Lost something?<br><span>Let's bring it home.</span></h1>
+        <p class="hero-description">A little help from your campus goes a long way. Search reported items or post something you've found.</p>
+        <a class="primary-button hero-button" href="#item-list">Browse items <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-sun"></div>
+        <div class="art-card art-card-back"><span class="art-line"></span><span class="art-line short"></span></div>
+        <div class="art-card art-card-front">
+          <div class="art-icon">✳</div>
+          <span class="art-tag">FOUND IT!</span>
+          <span class="art-line"></span>
+          <span class="art-line short"></span>
+        </div>
+        <div class="art-spark spark-one">✦</div>
+        <div class="art-spark spark-two">✧</div>
+      </div>
+    </section>
+
+    <section class="content-section" aria-labelledby="list-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">THE COMMUNITY BOARD</p>
+          <h2 id="list-heading">Recently reported</h2>
+          <p class="section-subtitle">Find an item, or help someone find theirs.</p>
+        </div>
+        <span class="listing-count" id="listing-count">Loading items…</span>
+      </div>
+
+      <div class="listing-tools">
+        <label class="search-box" for="search-input">
+          <span aria-hidden="true">⌕</span>
+          <input type="search" id="search-input" placeholder="Search items, places, descriptions…" autocomplete="off">
+        </label>
+        <div class="filter-wrap">
+          <label for="type-filter">Show</label>
+          <select id="type-filter">
+            <option value="All">All items</option>
+            <option value="Lost">Lost items</option>
+            <option value="Found">Found items</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="item-list" class="item-grid" aria-live="polite">
+        <div class="loading-state">
+          <span class="loading-spinner" aria-hidden="true"></span>
+          <p>Loading campus listings…</p>
+        </div>
+      </div>
+      <p class="api-note" id="api-status" role="status"></p>
+    </section>
+
+    <section class="report-section" aria-labelledby="report-heading">
+      <div class="report-intro">
+        <p class="eyebrow">MAKE A DIFFERENCE</p>
+        <h2 id="report-heading">Add to the board.</h2>
+        <p>Lost an important item or found something that belongs to someone? Share the details with your campus community.</p>
+        <div class="report-tip"><span aria-hidden="true">✦</span><span><strong>Helpful tip</strong><br>Include a clear description and where the item was last seen or found.</span></div>
+      </div>
+
+      <form id="report-form" class="report-form">
+        <div class="form-heading">
+          <h3>Report an item</h3>
+          <p>Fields marked * are required.</p>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="item-title">Item name <span>*</span></label>
+            <input id="item-title" name="title" type="text" placeholder="e.g. Blue water bottle" maxlength="100" required>
+          </div>
+          <div class="form-field">
+            <label for="item-type">I have… <span>*</span></label>
+            <select id="item-type" name="type" required>
+              <option value="Lost">Lost an item</option>
+              <option value="Found">Found an item</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="item-description">Description <span>*</span></label>
+          <textarea id="item-description" name="description" rows="3" maxlength="1000" placeholder="Color, brand, identifying details…" required></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="item-location">Location <span>*</span></label>
+            <input id="item-location" name="location" type="text" placeholder="e.g. Library, second floor" maxlength="150" required>
+          </div>
+          <div class="form-field">
+            <label for="item-date">Date <span>*</span></label>
+            <input id="item-date" name="date" type="date" required>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="item-contact">Contact details <span>*</span></label>
+          <input id="item-contact" name="contact" type="text" placeholder="Email or phone number" maxlength="150" required>
+        </div>
+
+        <p class="form-message" id="form-message" role="status" aria-live="polite"></p>
+        <button class="primary-button submit-button" id="submit-button" type="submit">Submit report <span aria-hidden="true">→</span></button>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand footer-brand" href="#"><span class="brand-mark" aria-hidden="true">⌕</span><span>Campus<span class="brand-light"> Lost &amp; Found</span></span></a>
+    <p>Small acts of kindness make a big campus.</p>
+  </footer>
+
+  <script>
+    // The API routes are relative so the frontend can work with the team's backend
+    // when both are served from the same host.
+    const API_URL = "/api/items";
+    const itemList = document.getElementById("item-list");
+    const searchInput = document.getElementById("search-input");
+    const typeFilter = document.getElementById("type-filter");
+    const reportForm = document.getElementById("report-form");
+    const formMessage = document.getElementById("form-message");
+    const apiStatus = document.getElementById("api-status");
+    const listingCount = document.getElementById("listing-count");
+    const submitButton = document.getElementById("submit-button");
+
+    let items = [];
+
+    function escapeHTML(value) {
+      return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+      })[character]);
+    }
+
+    function formatDate(value) {
+      if (!value) return "Date not provided";
+      const date = new Date(value + (String(value).length === 10 ? "T00:00:00" : ""));
+      if (Number.isNaN(date.getTime())) return escapeHTML(value);
+      return date.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+    }
+
+    function renderItems() {
+      const query = searchInput.value.trim().toLowerCase();
+      const selectedType = typeFilter.value;
+      const filtered = items.filter(item => {
+        const matchesType = selectedType === "All" || String(item.type).toLowerCase() === selectedType.toLowerCase();
+        const searchable = [item.title, item.description, item.location, item.type, item.date]
+          .filter(Boolean).join(" ").toLowerCase();
+        return matchesType && searchable.includes(query);
+      });
+
+      listingCount.textContent = `${filtered.length} ${filtered.length === 1 ? "item" : "items"}`;
+
+      if (filtered.length === 0) {
+        itemList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon" aria-hidden="true">⌕</div>
+            <h3>No matching items yet</h3>
+            <p>Try another search or filter, or add a report below.</p>
+          </div>`;
+        return;
+      }
+
+      itemList.innerHTML = filtered.map(item => {
+        const type = String(item.type || "Lost").toLowerCase() === "found" ? "Found" : "Lost";
+        return `
+          <article class="item-card">
+            <div class="item-card-top">
+              <span class="item-badge ${type.toLowerCase()}">${type === "Found" ? "✓ Found" : "⌕ Lost"}</span>
+              <span class="item-date">${escapeHTML(formatDate(item.date))}</span>
+            </div>
+            <h3>${escapeHTML(item.title || "Untitled item")}</h3>
+            <p class="item-description">${escapeHTML(item.description || "No description provided.")}</p>
+            <div class="item-location"><span aria-hidden="true">⌖</span><span>${escapeHTML(item.location || "Location not provided")}</span></div>
+            ${item.contact ? `<div class="item-contact"><span aria-hidden="true">✉</span><span>${escapeHTML(item.contact)}</span></div>` : ""}
+          </article>`;
+      }).join("");
+    }
+
+    async function loadItems() {
+      try {
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`Server returned ${response.status}`);
+        const data = await response.json();
+        items = Array.isArray(data) ? data : (Array.isArray(data.items) ? data.items : []);
+        apiStatus.textContent = "";
+        renderItems();
+      } catch (error) {
+        items = [];
+        renderItems();
+        listingCount.textContent = "Can't connect";
+        apiStatus.textContent = "Couldn't load listings. Make sure the backend is running and GET /api/items is available.";
+        console.error("Could not load items:", error);
+      }
+    }
+
+    searchInput.addEventListener("input", renderItems);
+    typeFilter.addEventListener("change", renderItems);
+
+    reportForm.addEventListener("submit", async event => {
+      event.preventDefault();
+      formMessage.textContent = "";
+      formMessage.className = "form-message";
+
+      const formData = new FormData(reportForm);
+      const newItem = {
+        title: String(formData.get("title")).trim(),
+        description: String(formData.get("description")).trim(),
+        location: String(formData.get("location")).trim(),
+        type: String(formData.get("type")),
+        date: String(formData.get("date")),
+        contact: String(formData.get("contact")).trim()
+      };
+
+      submitButton.disabled = true;
+      submitButton.innerHTML = 'Submitting… <span aria-hidden="true">…</span>';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newItem)
+        });
+        if (!response.ok) {
+          let message = `Server returned ${response.status}`;
+          try {
+            const errorData = await response.json();
+            if (errorData.message) message = errorData.message;
+          } catch (_) {}
+          throw new Error(message);
+        }
+
+        const result = await response.json();
+const savedItem = result.item;
+
+if (!savedItem) {
+    throw new Error("The server did not return the created item.");
+}
+
+items.unshift(savedItem);
+        reportForm.reset();
+        document.getElementById("item-date").value = new Date().toISOString().slice(0, 10);
+        searchInput.value = "";
+        typeFilter.value = "All";
+        renderItems();
+        formMessage.textContent = "Report submitted successfully!";
+        formMessage.classList.add("success");
+        document.getElementById("item-list").scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (error) {
+        formMessage.textContent = "Couldn't submit the report. Check that the backend is running and POST /api/items is available.";
+        formMessage.classList.add("error");
+        console.error("Could not submit item:", error);
+      } finally {
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Submit report <span aria-hidden="true">→</span>';
+      }
+    });
+
+    document.getElementById("item-date").value = new Date().toISOString().slice(0, 10);
+    loadItems();
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
